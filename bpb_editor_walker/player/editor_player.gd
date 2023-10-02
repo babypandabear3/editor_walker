@@ -15,7 +15,7 @@ var plugin_camera
 @onready var axis_y = $camera_root/axis_y
 @onready var axis_x = $camera_root/axis_y/axis_x
 
-var camera_sensitivity := 50.0 #THIS SHOULD BE READ FROM GAME SETTING
+var camera_sensitivity := 30.0 #THIS SHOULD BE READ FROM GAME SETTING
 var camera_multiply = 0.0001
 var camera_x_limit_high := 60.0
 var camera_x_limit_low := -89.0
@@ -27,7 +27,7 @@ func _physics_process(delta):
 	if not editor_walker_active:
 		return
 		
-	var camera_pos = $camera_root/axis_y/axis_x/camera_pos
+	
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -47,8 +47,8 @@ func _physics_process(delta):
 		input_dir.y += 1
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
-	var dir_x = camera_pos.global_transform.basis.x.slide(Vector3.UP).normalized()
-	var dir_z = camera_pos.global_transform.basis.z.slide(Vector3.UP).normalized()
+	var dir_x = axis_y.global_transform.basis.x
+	var dir_z = axis_y.global_transform.basis.z
 	
 	#var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var direction = ((dir_x * input_dir.x) + (dir_z * input_dir.y)).normalized()
@@ -61,15 +61,18 @@ func _physics_process(delta):
 
 	move_and_slide()
 	
-	
-	plugin_camera.global_transform = camera_pos.global_transform
-
+	#MOUSE LOOK
+	var camera_pos = $camera_root/axis_y/axis_x/camera_pos
+	motion = Input.get_last_mouse_velocity() * delta
 	axis_y.rotate_y(-motion.x * camera_sensitivity * camera_multiply)
 	axis_x.rotate_x(-motion.y * camera_sensitivity * camera_multiply)
 	axis_x.rotation_degrees.x = clampf(axis_x.rotation_degrees.x, camera_x_limit_low, camera_x_limit_high)
 	
-	motion = Vector2.ZERO
-	input_dir = Vector2.ZERO
-	
+	plugin_camera.global_transform = camera_pos.global_transform
+	call_deferred("send_camera_transform_to_plugin", plugin_camera, camera_pos)
 	
 
+func send_camera_transform_to_plugin(plugin_camera, camera_pos):
+	#SEND TRANSFORM TO VIEWPORT CAMERA
+	plugin_camera.global_transform = plugin_camera.global_transform.interpolate_with(camera_pos.global_transform, 0.5)
+	

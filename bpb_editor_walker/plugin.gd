@@ -35,10 +35,6 @@ func _forward_3d_gui_input(viewport_camera, event):
 		return 
 	editor_player.editor_walker_active = is_enabled
 	editor_player.plugin_camera = viewport_camera
-	
-	
-	if event is InputEventMouseMotion:
-		editor_player.motion = event.relative
 		
 	return true
 	

@@ -30,8 +30,10 @@ func set_active(par):
 		focus_holder.show()
 		focus_holder.grab_focus()
 		focus_holder.grab_click_focus()
+		PhysicsServer3D.set_active(true)
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		focus_holder.text = ""
 		focus_holder.hide()
+		PhysicsServer3D.set_active(false)
 	pass
